@@ -1,0 +1,29 @@
+### Special Groups for RKE & Rancher cluster ###
+# Dummy Hosts representing a cluster
+
+[custom_k8s_clusters]
+rancher_custom_cluster # Belongs to Ansible Group mycluster
+
+[rke_rancher_clusters]
+cluster_rancher # rancher-local.com Belongs to Ansible Group rke_cluster_rancher
+
+### Hosts
+
+[rancher_k8s_nodes:children]
+rke_cluster_rancher
+custom_cluster
+
+[custom_cluster:children]
+cluster_masters
+cluster_workers
+
+[cluster_masters]
+rancher1.local ansible_host=192.168.56.70 ansible_user=root
+
+[cluster_workers]
+rancher2.local ansible_host=192.168.56.71 ansible_user=root
+rancher3.local ansible_host=192.168.56.72 ansible_user=root
+
+[rke_cluster_rancher]
+rancher-local.assets.giottolabs.com ansible_host=192.168.56.60 ansible_user=root
+#rancher-local.com ansible_host=192.168.56.60 ansible_user=root

@@ -1,0 +1,85 @@
+{
+   "type":"provisioning.cattle.io.cluster",
+   "metadata":{
+      "namespace":"fleet-default",
+      "name":"mycluster1-api"
+   },
+   "spec":{
+      "rkeConfig":{
+         "chartValues":{
+            "rke2-canal":{
+               
+            }
+         },
+         "upgradeStrategy":{
+            "controlPlaneConcurrency":"1",
+            "controlPlaneDrainOptions":{
+               "deleteEmptyDirData":true,
+               "disableEviction":false,
+               "enabled":false,
+               "force":false,
+               "gracePeriod":-1,
+               "ignoreDaemonSets":true,
+               "skipWaitForDeleteTimeoutSeconds":0,
+               "timeout":120
+            },
+            "workerConcurrency":"1",
+            "workerDrainOptions":{
+               "deleteEmptyDirData":true,
+               "disableEviction":false,
+               "enabled":false,
+               "force":false,
+               "gracePeriod":-1,
+               "ignoreDaemonSets":true,
+               "skipWaitForDeleteTimeoutSeconds":0,
+               "timeout":120
+            }
+         },
+         "machineGlobalConfig":{
+            "cni":"canal",
+            "disable-kube-proxy":false,
+            "etcd-expose-metrics":false
+         },
+         "machineSelectorConfig":[
+            {
+               "config":{
+                  "protect-kernel-defaults":false
+               }
+            }
+         ],
+         "etcd":{
+            "disableSnapshots":false,
+            "s3":null,
+            "snapshotRetention":5,
+            "snapshotScheduleCron":"0 */5 * * *"
+         },
+         "registries":{
+            "configs":{
+               
+            },
+            "mirrors":{
+               
+            }
+         },
+         "machinePools":[
+            
+         ]
+      },
+      "machineSelectorConfig":[
+         {
+            "config":{
+               
+            }
+         }
+      ],
+      "kubernetesVersion":"v1.25.13+rke2r1",
+      "defaultPodSecurityPolicyTemplateName":"",
+      "defaultPodSecurityAdmissionConfigurationTemplateName":"",
+      "localClusterAuthEndpoint":{
+         "enabled":false,
+         "caCerts":"",
+         "fqdn":""
+      },
+      "enableNetworkPolicy":true
+   }
+}
