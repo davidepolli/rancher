@@ -1,4 +1,26 @@
 ---
+
+- name: Check if the clusterid information exists
+  stat:
+    path: /tmp/clusterid.txt
+  register: clusteridstat
+
+- name: Read clusterid
+  slurp:
+    src: /tmp/clusterid.txt
+  when: clusteridstat.stat.exists
+  register: clusterid
+
+- name: Set a variable with the file content
+  set_fact:
+    clusterid_content: "{{ clusterid['content'] | b64decode }}"
+  when: clusteridstat.stat.exists
+
+- name: Set clusterid
+  set_fact:
+    clusterid: "{{ clusterid_content }}"
+  when : clusteridstat.stat.exists
+
 - name: Get current nodes from Rancher Control Plane
   uri:
     url: "{{ custom_k8s_cluster_rancher_api }}/clusters/{{ clusterid }}/nodes"
@@ -8,6 +30,7 @@
       Authorization: "Bearer {{ custom_k8s_cluster_api_key }}"
   register: cluster_nodes
   check_mode: no
+  when : ( clusterid | length ) > 0
 
 - name: Show already added nodes
   debug:
@@ -29,10 +52,36 @@
 #  with_items:
 #    - "{{ groups[custom_k8s_cluster_group_inventory_name] }}"
 
+- name: Check if the clusternode command exists
+  stat:
+    path: /tmp/clusternodecommand.txt
+  register: clusternodecommandstat
+
+- name: Read the content of the file
+  slurp:
+    src: /tmp/clusternodecommand.txt
+  when: clusternodecommandstat.stat.exists
+  register: clusternodecommand
+
+- name: Set a variable with the file content
+  set_fact:
+    clusternode_content: "{{ clusternodecommand['content'] | b64decode }}"
+  when: clusternodecommandstat.stat.exists
+
+- name: Set Rancher API
+  set_fact:
+    clusternodecommand: "{{ clusternode_content }}"
+  when : clusternodecommandstat.stat.exists
+
+- name: clusternodecommand
+  debug:
+    msg: "{{ clusternodecommand }}"
+
 - name: Add Nodes when not already added
   delegate_to: "{{ item }}"
-  #command: "{{ custom_k8s_cluster_docker_commmand_base }} {{ custom_k8s_cluster_ca_checksum_param }} {{ clustercachecksum | default('') }} --token {{ clusterregistrationtoken }} --internal-address {{ custom_k8s_cluster_ingress_node_internal_iface }} --node-name {{ hostvars[item]['ansible_facts']['hostname'] }}{{ '.' + hostvars[item]['ansible_facts']['domain'] if hostvars[item]['ansible_facts']['domain'] and custom_k8s_cluster_use_fqdn_nodename else '' }}{% for label in hostvars[item]['k8s_labels'] %} --label {{ label.name }}={{ label.value }}{% endfor %}{% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
-  command: "{{ clusternodecommand }} {% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
+  raw: "{{ clusternodecommand }} {% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
+  #debug:
+  #  msg: "{{ clusternodecommand }} {% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
   when:
     - (cluster_nodes | json_query("json.data[?hostname == '" + hostvars[item]['ansible_facts']['hostname'] + ("." + hostvars[item]['ansible_facts']['domain'] if hostvars[item]['ansible_facts']['domain'] and custom_k8s_cluster_use_fqdn_nodename else "") +"']") | length) == 0
   with_items:

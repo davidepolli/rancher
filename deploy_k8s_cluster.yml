@@ -15,4 +15,5 @@
   hosts: custom_k8s_clusters
   gather_facts: no
   roles:
+    - role: rke_rancher_clusters
     - role: custom_k8s_cluster

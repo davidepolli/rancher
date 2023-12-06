@@ -1,0 +1,75 @@
+---
+
+- name: Check if the file exists
+  stat:
+    path: /tmp/rancher_api_token.txt
+  register: tokenstat
+
+- name: Get Login Token
+  uri:
+    url: "https://{{ rancher_hostname }}/v3-public/localProviders/local?action=login"
+    return_content: yes
+    body: "{ 'username': '{{ rancher_admin_username }}', 'password': '{{ rancher_admin_password }}'}"
+    body_format: json
+    method: POST
+    status_code: 201
+    validate_certs: no
+  register: json_response
+  when : not tokenstat.stat.exists
+
+- name: Set Rancher Login Token
+  set_fact:
+    rancher_login_token: "{{ json_response.json.token }}"
+  when : not tokenstat.stat.exists
+
+- name: Create API Key
+  uri:
+    url: "https://{{ rancher_hostname }}/v3/token"
+    return_content: yes
+    body:
+      description: ansible_automation
+    body_format: json
+    method: POST
+    status_code: 
+    - 201
+    validate_certs: no
+    headers:
+      Authorization: "Bearer {{ rancher_login_token }}"
+  register: json_response
+  when : not tokenstat.stat.exists
+
+- name: Set Rancher API
+  set_fact:
+    rancher_api_token: "{{ json_response.json.token }}"
+  when : not tokenstat.stat.exists
+
+- name: Save output to a file on the control machine
+  copy:
+    content: "{{ rancher_api_token }}"
+    dest: /tmp/rancher_api_token.txt
+  when : not tokenstat.stat.exists
+
+- name: Read the content of the file
+  slurp:
+    src: /tmp/rancher_api_token.txt
+  when: tokenstat.stat.exists
+  register: file_content
+
+- name: Set a variable with the file content
+  set_fact:
+    file_content_variable: "{{ file_content['content'] | b64decode }}"
+  when: tokenstat.stat.exists
+
+- name: Set Rancher API
+  set_fact:
+    rancher_api_token: "{{ file_content_variable }}"
+  when : tokenstat.stat.exists
+
+- name: Print the file content
+  debug:
+    var: rancher_api_token
+    
+- name: Add RANCHER_TOKEN_HOLDER dummy host
+  add_host:
+    name: "RANCHER_TOKEN_HOLDER"
+    api_token: "{{ rancher_api_token }}"

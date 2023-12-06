@@ -1,2 +1,0 @@
-custom_k8s_cluster_api_key: "token-j46f9:svjl9rgrmv5dnr5dxmlsl7qnkzxqcgn4cqc967xlnd985wbxgk7jvk" # Create a new token on your Rancher Control Plane
-custom_k8s_cluster_rancher_host: "https://rancher-local.assets.giottolabs.com" # URL of your Rancher control Plane

@@ -2,7 +2,10 @@
    "type":"provisioning.cattle.io.cluster",
    "metadata":{
       "namespace":"fleet-default",
-      "name":"mycluster1-api"
+      "annotations": {
+            "field.cattle.io/description": "{{ custom_k8s_cluster_description }}"
+      },
+      "name":"{{ custom_k8s_cluster_name }}"
    },
    "spec":{
       "rkeConfig":{
@@ -72,7 +75,7 @@
             }
          }
       ],
-      "kubernetesVersion":"v1.25.13+rke2r1",
+      "kubernetesVersion":"{{ custom_k8s_cluster_kubernetes_version }}",
       "defaultPodSecurityPolicyTemplateName":"",
       "defaultPodSecurityAdmissionConfigurationTemplateName":"",
       "localClusterAuthEndpoint":{
@@ -80,6 +83,6 @@
          "caCerts":"",
          "fqdn":""
       },
-      "enableNetworkPolicy":true
+      "enableNetworkPolicy": {{ custom_k8s_cluster_enable_network_policy }}
    }
 }
