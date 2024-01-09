@@ -10,7 +10,7 @@
    "spec":{
       "rkeConfig":{
          "chartValues":{
-            "rke2-canal":{
+            "rke2-{{ custom_k8s_clusters_cni }}":{
                
             }
          },
@@ -39,7 +39,7 @@
             }
          },
          "machineGlobalConfig":{
-            "cni":"canal",
+            "cni":"{{ custom_k8s_clusters_cni }}",
             "disable-kube-proxy":false,
             "etcd-expose-metrics":false
          },

@@ -79,9 +79,9 @@
 
 - name: Add Nodes when not already added
   delegate_to: "{{ item }}"
-  raw: "{{ clusternodecommand }} {% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
+  raw: "{{ clusternodecommand }} --internal-address {{ network_interface_name }} --address {{ network_interface_name }} {% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
   #debug:
-  #  msg: "{{ clusternodecommand }} {% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
+  #  msg: "{{ clusternodecommand }} --internal-address {{ network_interface_name }} --address {{ network_interface_name }} {% for role in hostvars[item]['k8s_roles'] %} --{{ role }}{% endfor %}"
   when:
     - (cluster_nodes | json_query("json.data[?hostname == '" + hostvars[item]['ansible_facts']['hostname'] + ("." + hostvars[item]['ansible_facts']['domain'] if hostvars[item]['ansible_facts']['domain'] and custom_k8s_cluster_use_fqdn_nodename else "") +"']") | length) == 0
   with_items:

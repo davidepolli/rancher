@@ -1,5 +1,7 @@
 ---
 
+network_interface_name: enp0s8
+
 # Rancher API Key
 #custom_k8s_cluster_api_key: ""
 # Rancher API Host
@@ -22,6 +24,8 @@ custom_k8s_cluster_enable_psp: true
 custom_k8s_clusters_default_psp: "restricted"
 # Enable Network Segregation between Projects
 custom_k8s_cluster_enable_network_policy: true
+# cni
+custom_k8s_clusters_cni: "canal"
 # Kubernetes Version
 custom_k8s_cluster_kubernetes_version: "v1.25.15+rke2r2"
 # Ingress Provider (none, nginx)
