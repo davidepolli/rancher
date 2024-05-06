@@ -1,19 +1,19 @@
 ---
 
-#- name: rancher check and some setup
-#  hosts: rke_rancher_clusters
-#  gather_facts: no
-#  roles:
-#    - role: rke_rancher_clusters
-
 - name: Gather facts from cluster nodes
   hosts: rancher_k8s_nodes
   tasks:
     - setup:
 
-- name: playbook to install a custom k8s cluster with a Rancher Control Plane
+- name: Install a custom k8s cluster with a Rancher Control Plane
   hosts: custom_k8s_clusters
   gather_facts: no
   roles:
     - role: rke_rancher_clusters
     - role: custom_k8s_cluster
+
+- name: Configuration of the masters node once the cluster is running
+  hosts: cluster_masters
+  gather_facts: no
+  roles:
+    - role: configure_masters

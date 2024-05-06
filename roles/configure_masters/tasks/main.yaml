@@ -1,0 +1,74 @@
+---
+
+# used by k8s_info
+#- name: Install Python 3 and pip
+#  apt:
+#    name: python3-pip
+#    state: present  # Ensure the package is installed
+#
+#- name: Install kubernetes Python library
+#  pip:
+#    name: kubernetes
+
+- name: Copy kubectl binary to /usr/local/bin
+  copy:
+    src: /var/lib/rancher/rke2/bin/kubectl
+    dest: /usr/local/bin/kubectl
+    remote_src: yes
+
+- name: Create Kubernetes configuration directory
+  file:
+    path: /root/.kube
+    state: directory
+
+- name: Copy rke2.yaml to /root/.kube/config
+  copy:
+    src: /etc/rancher/rke2/rke2.yaml
+    dest: /root/.kube/config
+    remote_src: yes
+
+#- name: Check if Kubernetes cluster is ready
+#  k8s_info:
+#    api_version: v1
+#    kind: Pod
+#    namespace: kube-system
+#  register: rke2_cluster_info
+#  until: rke2_cluster_info.resources | length > 0
+#  retries: 60
+#  delay: 10
+#  ignore_errors: true
+
+
+- name: Get kube-apiserver pod status
+  shell: kubectl get pods -n kube-system -l component=kube-apiserver -o jsonpath='{.items[*].status.conditions[?(@.type=="Ready")].status}'
+  register: api_server_ready_raw
+  until: api_server_ready_raw.stdout | bool
+  retries: 60
+  delay: 10
+  ignore_errors: true
+
+- name: Display raw result
+  debug:
+    var: api_server_ready_raw
+
+- name: Register api_server_ready as boolean
+  set_fact:
+    api_server_ready: "{{ api_server_ready_raw.stdout | bool }}"
+
+- name: Display result
+  debug:
+    var: api_server_ready
+
+- name: Execute tasks based on kube-apiserver readiness
+  block:
+    - name: Task to execute if kube-apiserver is ready
+      debug:
+        msg: "kube-apiserver is ready. Performing additional tasks."
+
+    - name: Update Deployment using kubectl patch
+      command: kubectl patch deployment cattle-cluster-agent -n cattle-system --patch "{{ lookup('template', 'cattle-cluster-agent.yaml.j2') }}"
+     
+  when: api_server_ready
+
+
+

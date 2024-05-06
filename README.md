@@ -1,4 +1,4 @@
-custom_k8s_cluster
+Rancher
 ==================
 
 Create a new custom K8S cluster on the Rancher host and add master and worker nodes
@@ -7,6 +7,12 @@ Requirements
 ------------
 
 Only uses python and ansible.
+
+
+
+## Description
+
+dd
 
 
 Role Variables
@@ -45,7 +51,7 @@ custom_k8s_cluster_agent_version: "v2.4.11"
 # Base command for the Ranger Agent
 custom_k8s_cluster_docker_commmand_base: "docker run -d --privileged --restart=unless-stopped --net=host -v /etc/kubernetes:/etc/kubernetes -v /var/run:/var/run rancher/rancher-agent:{{ custom_k8s_cluster_agent_version}} --server https://{{ custom_k8s_cluster_rancher_host }}"
 
-# Internal Interface
+# Internal Interface 
 # See https://rancher.com/docs/rke/latest/en/config-options/nodes/#internal-address
 # & https://rancher.com/docs/rancher/v2.x/en/cluster-provisioning/rke-clusters/custom-nodes/agent-options/#ip-address-options
 custom_k8s_cluster_ingress_node_internal_iface: eth0
